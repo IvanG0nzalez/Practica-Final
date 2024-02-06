@@ -31,14 +31,20 @@ dependencies:
   flutter:
     sdk: flutter
   validators: ^3.0.0
-  http: "0.13.0"
+  http: "1.0.0"
   flutter_secure_storage: ^8.0.0
   #fluttertoast: ^8.2.2
   another_flushbar: ^1.10.28
-
+  intl: ^0.17.0
+  geolocator: ^7.0.3
+  font_awesome_flutter: ^9.2.0
+  flutter_map: ^6.1.0
+  label_marker: ^1.0.1
+  flutter_map_animations: ^0.5.3
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
+  latlong2: ^0.9.0
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:noticias/views/detalleNoticiaView.dart';
 import 'package:noticias/views/exception/Page404.dart';
+import 'package:noticias/views/noticiasView.dart';
 import 'package:noticias/views/registerView.dart';
 import 'package:noticias/views/sessionView.dart';
 
@@ -15,6 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -39,8 +42,25 @@ class MyApp extends StatelessWidget {
       routes: {
         '/home': (context) => const SessionView(),
         '/register': (context) => const RegisterView(),
+        '/noticias': (context) => const NoticiasView(),
+        '/noticias/detalle': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          return DetalleNoticiaView(
+            externalId: args['externalId'],
+            noticia: args['noticia'],
+          );
+    },
       },
       onGenerateRoute: (setting){
+        if (setting.name == '/noticias/detalle') {
+          final args = setting.arguments as Map<String, dynamic>;
+          return MaterialPageRoute(
+            builder: (context) => DetalleNoticiaView(
+              externalId: args['externalId'],
+              noticia: args['noticia'],
+            ),
+          );
+        }
         return MaterialPageRoute(
           builder: (context) => const Page404()
         );

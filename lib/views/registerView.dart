@@ -19,7 +19,7 @@ class _RegisterViewState extends State<RegisterView> {
     final TextEditingController apellidosC = TextEditingController();
     final TextEditingController correoC = TextEditingController();
     final TextEditingController claveC = TextEditingController();
-
+    
     void _iniciar() {
       setState(() {
         //Conexion c = Conexion();
@@ -34,9 +34,30 @@ class _RegisterViewState extends State<RegisterView> {
           };
           servicio.registro(mapa).then((value) async {
             if (value.code == 200) {
-              final SnackBar msg =
+              const SnackBar msg =
                   SnackBar(content: Text('Registrado correctamente'));
               ScaffoldMessenger.of(context).showSnackBar(msg);
+              servicio.inicioSesion(mapa).then((value) async {
+                if (value.code == 200) {
+                  Utiles util = Utiles();
+                  util.saveValue('token', value.datos['token']);
+                  util.saveValue('external_user', value.datos['external_user']);
+                  util.saveValue('isAdmin', value.datos['isAdmin'].toString());
+                  final SnackBar msg = SnackBar(
+                      content: Text('Bienvenido ${value.datos['user']}'));
+                  ScaffoldMessenger.of(context).showSnackBar(msg);
+
+                  Navigator.pushReplacementNamed(
+                    context,
+                    '/noticias',
+                  );
+                } else {
+                  final SnackBar msg =
+                      SnackBar(content: Text('Error ${value.code}'));
+                  ScaffoldMessenger.of(context).showSnackBar(msg);
+                }
+                log(value.datos.toString());
+              });
             } else {
               final SnackBar msg =
                   SnackBar(content: Text('Error ${value.code}'));
@@ -149,13 +170,13 @@ class _RegisterViewState extends State<RegisterView> {
             ),
             Row(
               children: <Widget>[
-                const Text('Ya tienes una cuenta'),
+                const Text('Ya tienes una cuenta?'),
                 TextButton(
                     onPressed: () {
                       Navigator.pushNamed(context, '/home');
                     },
                     child: const Text(
-                      'Inicio de sesión',
+                      'Iniciar sesión',
                       style: TextStyle(fontSize: 20),
                     ))
               ],

@@ -40,12 +40,10 @@ class FacadeService {
       isws.tag = 'Error Interno';
       isws.msg = 'Error Inesperado';
       isws.datos = {};
+      log(e.toString());
       return isws;
     }
     return isws;
-  }
-  Future<RespuestaGenerica> listar_compradores() async {
-    return await c.solicitudGet("admin/compradores", false);
   }
 
   Future<RegistroSW> registro(Map<String, String> mapa) async {
@@ -76,5 +74,21 @@ class FacadeService {
       return rws;
     }
     return rws;
+  }
+
+  Future<RespuestaGenerica> listar_noticas() async {
+    return await c.solicitudGet("noticias", false);
+  }
+
+  Future<RespuestaGenerica> obtener_noticia(String externalId) async {
+    return await c.solicitudGet('noticias/get/${externalId}', false);
+  }
+
+  Future<RespuestaGenerica> guardar_comentario(Map<String, dynamic> comentario) async {
+    return await c.solicitudPost("comentarios/save", false, comentario);
+  }
+
+  Future<RespuestaGenerica> obtener_comentarios() async {
+    return await c.solicitudGet("comentarios", false);
   }
 }

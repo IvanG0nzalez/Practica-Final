@@ -2,7 +2,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:noticias/controls/servicio_back/FacadeService.dart';
 import 'package:noticias/controls/utiles/Utiles.dart';
-import 'package:validators/validators.dart';
 
 class SessionView extends StatefulWidget {
   const SessionView({Key? key}) : super(key: key);
@@ -32,9 +31,17 @@ class _SessionViewState extends State<SessionView> {
           if (value.code == 200) {
             Utiles util = Utiles();
             util.saveValue('token', value.datos['token']);
+            util.saveValue('external_user', value.datos['external_user']);
+            util.saveValue('isAdmin', value.datos['isAdmin'].toString());
             final SnackBar msg =
                 SnackBar(content: Text('Bienvenido ${value.datos['user']}'));
             ScaffoldMessenger.of(context).showSnackBar(msg);
+
+            Navigator.pushReplacementNamed(
+              context, 
+              '/noticias'
+            );
+            
           } else {
             final SnackBar msg = SnackBar(content: Text('Error ${value.code}'));
             ScaffoldMessenger.of(context).showSnackBar(msg);
@@ -67,7 +74,7 @@ class _SessionViewState extends State<SessionView> {
             Container(
               alignment: Alignment.center,
               padding: const EdgeInsets.all(10),
-              child: const Text("Le mejor aplicación del mundo xd",
+              child: const Text("Aplicación de Noticias",
                   style: TextStyle(
                       color: Colors.blueGrey,
                       fontWeight: FontWeight.bold,

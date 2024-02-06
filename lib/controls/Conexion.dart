@@ -1,12 +1,13 @@
 import 'package:noticias/controls/servicio_back/RespuestaGenerica.dart';
-import 'dart:developer';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:noticias/controls/utiles/Utiles.dart';
 
 class Conexion {
-  final String URL = "http://10.20.139.3:3000/api/";
-  final String URL_MEDIA = "http://10.20.139.3:3000/multimedia";
+  final String URL = "http://192.168.1.109:3000/api/"; //de la casa
+  final String URL_MEDIA = "http://192.168.1.109:3000/multimedia";
+  //final String URL = "http://10.20.139.90:3000/api/"; //de la uni
+  //final String URL_MEDIA = "http://10.20.139.90:3000/multimedia";
   static bool NO_TOKEN = false;
   Future<RespuestaGenerica> solicitudGet(String recurso, bool token) async{
     Map<String, String> _header = {'Content-Type':'application/json'};
@@ -35,7 +36,7 @@ class Conexion {
     }
   }
 
-    Future<RespuestaGenerica> solicitudPost(String recurso, bool token, Map<dynamic, dynamic> mapa) async{
+  Future<RespuestaGenerica> solicitudPost(String recurso, bool token, Map<dynamic, dynamic> mapa) async{
     Map<String, String> _header = {'Content-Type':'application/json'};
     if(token){
       Utiles util = Utiles();
