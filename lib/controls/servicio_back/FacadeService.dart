@@ -91,4 +91,20 @@ class FacadeService {
   Future<RespuestaGenerica> obtener_comentarios() async {
     return await c.solicitudGet("comentarios", false);
   }
+
+  Future<RespuestaGenerica> obtener_comentarios_noticia(String externalId) async {
+    return await c.solicitudGet('noticias/comentarios/get/${externalId}', false);
+  }
+
+  Future<RespuestaGenerica> obtener_10_comentarios_noticia(String externalId) async {
+    return await c.solicitudGet('noticias/comentarios/get10/${externalId}', false);
+  }
+
+  Future<RespuestaGenerica> obtener_comentarios_noticia_usuario(String externalNoticia, String? externalPersona) async {
+    return await c.solicitudGet('noticias/comentarios/usuarios/get/${externalNoticia}/${externalPersona}', false);
+  }
+
+  Future<RespuestaGenerica> editar_comentario(String externalComentario, Map<String, dynamic> comentario) async {
+    return await c.solicitudPatch('comentarios/edit/${externalComentario}/', false, comentario);
+  }
 }

@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
         '/noticias/detalle': (context) {
           final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
           return DetalleNoticiaView(
-            externalId: args['externalId'],
+            external_noticia: args['externalId'],
             noticia: args['noticia'],
           );
     },
@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
           final args = setting.arguments as Map<String, dynamic>;
           return MaterialPageRoute(
             builder: (context) => DetalleNoticiaView(
-              externalId: args['externalId'],
+              external_noticia: args['externalId'],
               noticia: args['noticia'],
             ),
           );

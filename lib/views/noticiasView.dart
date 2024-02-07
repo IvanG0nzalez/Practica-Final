@@ -17,8 +17,9 @@ class NoticiasView extends StatefulWidget {
 }
 
 class _NoticiasViewState extends State<NoticiasView> {
-  List<dynamic> noticias = []; // Lista para almacenar las noticias
+  List<dynamic> noticias = [];
   Utiles util = Utiles();
+  FacadeService facadeService = FacadeService();
   late Future<bool> isAdmin;
 
   @override
@@ -52,7 +53,7 @@ class _NoticiasViewState extends State<NoticiasView> {
           context,
           MaterialPageRoute(
             builder: (context) => DetalleNoticiaView(
-              externalId: externalId,
+              external_noticia: externalId,
               noticia: value.datos,
             ),
           ),
@@ -70,7 +71,6 @@ class _NoticiasViewState extends State<NoticiasView> {
   }
 
   void ver_comentarios_mapa() {
-    FacadeService facadeService = FacadeService();
     facadeService.obtener_comentarios().then((value) {
       if (value.code == 200) {
         Navigator.push(
@@ -81,6 +81,30 @@ class _NoticiasViewState extends State<NoticiasView> {
             ),
           ),
         );
+      } else {
+        final SnackBar msg = SnackBar(content: Text('Error ${value.code}'));
+        ScaffoldMessenger.of(context).showSnackBar(msg);
+      }
+    });
+  }
+
+  void ver_comentarios_noticia_mapa(String externalId) {
+    facadeService.obtener_comentarios_noticia(externalId).then((value) {
+      if (value.code == 200) {
+        if (value.datos.isNotEmpty) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ComentariosMapaView(
+                comentarios: value.datos,
+              ),
+            ),
+          );
+        } else {
+          final SnackBar msg = SnackBar(
+              content: Text('Aún no hay comentarios en esta noticia.'));
+          ScaffoldMessenger.of(context).showSnackBar(msg);
+        }
       } else {
         final SnackBar msg = SnackBar(content: Text('Error ${value.code}'));
         ScaffoldMessenger.of(context).showSnackBar(msg);
@@ -99,7 +123,7 @@ class _NoticiasViewState extends State<NoticiasView> {
             future: isAdmin,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Container(); // o un indicador de carga
+                return Container();
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else {
@@ -109,7 +133,7 @@ class _NoticiasViewState extends State<NoticiasView> {
                     onPressed: ver_comentarios_mapa,
                   );
                 } else {
-                  return Container(); // o null si no quieres mostrar nada
+                  return Container();
                 }
               }
             },
@@ -124,13 +148,12 @@ class _NoticiasViewState extends State<NoticiasView> {
       body: ListView.builder(
         itemCount: noticias.length,
         itemBuilder: (context, index) {
-          // Construir una tarjeta para cada noticia
           return Card(
             elevation: 6.0,
             margin: const EdgeInsets.all(8.0),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10.0),
-              side: BorderSide(color: Colors.black87, width: 1.0),
+              side: const BorderSide(color: Colors.black87, width: 1.0),
             ),
             shadowColor: Colors.black87,
             child: Column(
@@ -140,7 +163,7 @@ class _NoticiasViewState extends State<NoticiasView> {
                   title: Center(
                     child: Text(
                       noticias[index]['titulo'],
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -153,22 +176,18 @@ class _NoticiasViewState extends State<NoticiasView> {
                         padding: const EdgeInsets.all(8.0),
                         child: Container(
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(
-                                10.0), // Bordes redondeados
+                            borderRadius: BorderRadius.circular(10.0),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.grey
-                                    .withOpacity(0.5), // Color de la sombra
-                                spreadRadius: 2, // Extensión de la sombra
-                                blurRadius: 5, // Desenfoque de la sombra
-                                offset:
-                                    Offset(0, 3), // Desplazamiento de la sombra
+                                color: Colors.grey.withOpacity(0.5),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: Offset(0, 3),
                               ),
                             ],
                           ),
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(
-                                10.0), // Bordes redondeados
+                            borderRadius: BorderRadius.circular(10.0),
                             child: Image.network(
                               '${Conexion().URL_MEDIA}/${noticias[index]['archivo']}',
                               fit: BoxFit.cover,
@@ -184,9 +203,12 @@ class _NoticiasViewState extends State<NoticiasView> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Center(child: Text("Noticia " + noticias[index]['tipo'])),
                             Center(
-                                child: Text("Publicado: " + _formatDate(noticias[index]['fecha']))),
+                                child:
+                                    Text("Noticia " + noticias[index]['tipo'])),
+                            Center(
+                                child: Text("Publicado: " +
+                                    _formatDate(noticias[index]['fecha']))),
                             const SizedBox(height: 8.0),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -203,9 +225,10 @@ class _NoticiasViewState extends State<NoticiasView> {
                                         return IconButton(
                                           icon: Icon(
                                               FontAwesomeIcons.mapMarkerAlt),
-                                          onPressed: () {
-                                            // Acción cuando se presiona el botón del mapa
-                                          },
+                                          onPressed: () =>
+                                              ver_comentarios_noticia_mapa(
+                                                  noticias[index]
+                                                      ['external_id']),
                                         );
                                       } else {
                                         return Container();

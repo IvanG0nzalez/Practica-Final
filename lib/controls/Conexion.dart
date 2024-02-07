@@ -63,6 +63,33 @@ class Conexion {
     }
   }
 
+  Future<RespuestaGenerica> solicitudPatch(String recurso, bool token, Map<dynamic, dynamic> mapa) async {
+  Map<String, String> _header = {'Content-Type':'application/json'};
+  if(token){
+    Utiles util = Utiles();
+    String? token = await util.getValue('token');
+    _header = {'Content-Type':'application/json','token':token.toString()};
+  }
+  final String _url = URL+recurso;
+  final uri = Uri.parse(_url);
+  try{
+    final response = await http.patch(uri, headers: _header, body: jsonEncode(mapa));
+    if (response.statusCode != 200) {
+      if (response.statusCode == 404) {
+        return _response(404, "Recurso no encontrado", []);
+      } else {
+        Map<dynamic, dynamic> mapa = jsonDecode(response.body);
+        return _response(mapa['code'], mapa['msg'], mapa['datos']);
+      }
+    } else {
+      Map<dynamic, dynamic> mapa = jsonDecode(response.body);
+      return _response(mapa['code'], mapa['msg'], mapa['datos']);
+    }
+  } catch(e){
+    return _response(500, "Error inesperado", []);
+  }
+}
+
   RespuestaGenerica _response(int code, String msg, dynamic data) {
     var respuesta = RespuestaGenerica();
     respuesta.code = code;
