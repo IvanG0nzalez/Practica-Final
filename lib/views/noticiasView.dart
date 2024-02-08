@@ -29,121 +29,88 @@ class _NoticiasViewState extends State<NoticiasView> {
     listarNoticias();
   }
 
-  void listarNoticias() {
-    FacadeService facadeService = FacadeService();
-    facadeService.listar_noticas().then((value) {
-      setState(() {
-        noticias = value.datos; // Almacena las noticias en la lista
-        log(value.datos.toString());
-      });
-    });
-  }
-
-  void cerrarSesion() async {
-    Utiles util = Utiles();
-    util.removeAllItems();
-    Navigator.pushReplacementNamed(context, '/home');
-  }
-
-  void comentario(String externalId) {
-    FacadeService facadeService = FacadeService();
-    facadeService.obtener_noticia(externalId).then((value) {
-      if (value.code == 200) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DetalleNoticiaView(
-              external_noticia: externalId,
-              noticia: value.datos,
-            ),
-          ),
-        );
-      } else {
-        final SnackBar msg = SnackBar(content: Text('Error ${value.code}'));
-        ScaffoldMessenger.of(context).showSnackBar(msg);
-      }
-    });
-  }
-
-  String _formatDate(String dateString) {
-    DateTime date = DateTime.parse(dateString);
-    return DateFormat('dd-MM-yyyy').format(date);
-  }
-
-  void ver_comentarios_mapa() {
-    facadeService.obtener_comentarios().then((value) {
-      if (value.code == 200) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ComentariosMapaView(
-              comentarios: value.datos,
-            ),
-          ),
-        );
-      } else {
-        final SnackBar msg = SnackBar(content: Text('Error ${value.code}'));
-        ScaffoldMessenger.of(context).showSnackBar(msg);
-      }
-    });
-  }
-
-  void ver_comentarios_noticia_mapa(String externalId) {
-    facadeService.obtener_comentarios_noticia(externalId).then((value) {
-      if (value.code == 200) {
-        if (value.datos.isNotEmpty) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ComentariosMapaView(
-                comentarios: value.datos,
-              ),
-            ),
-          );
-        } else {
-          final SnackBar msg = SnackBar(
-              content: Text('Aún no hay comentarios en esta noticia.'));
-          ScaffoldMessenger.of(context).showSnackBar(msg);
-        }
-      } else {
-        final SnackBar msg = SnackBar(content: Text('Error ${value.code}'));
-        ScaffoldMessenger.of(context).showSnackBar(msg);
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Noticias'),
-        automaticallyImplyLeading: false,
-        actions: [
-          FutureBuilder<bool>(
-            future: isAdmin,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Container();
-              } else if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                if (snapshot.data == true) {
-                  return IconButton(
-                    icon: const FaIcon(FontAwesomeIcons.mapMarkedAlt),
-                    onPressed: ver_comentarios_mapa,
-                  );
-                } else {
-                  return Container();
-                }
-              }
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
             },
           ),
-          SizedBox(width: 8.0),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: cerrarSesion,
-          ),
-        ],
+        ),
+        title: const Text('Noticias'),
+        automaticallyImplyLeading: false,
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 227, 206, 251),
+              ),
+              child: Text(
+                'Aplicación de Noticias',
+                style: TextStyle(
+                      fontSize: 24.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                ),
+            ),
+            ListTile(
+              leading: Icon(Icons.article_outlined),
+              title: Text('Listado de Noticias'),
+              onTap: () {
+                Navigator.pushReplacementNamed(context, '/noticias');
+              },
+            ),
+            FutureBuilder<bool>(
+              future: isAdmin,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Container();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  if (snapshot.data == true) {
+                    return ListTile(
+                      leading: FaIcon(FontAwesomeIcons.mapMarkedAlt),
+                      title: Text(
+                        'Mapa general',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      onTap: () {
+                        ver_comentarios_mapa();
+                      },
+                    );
+                  } else {
+                    return Container();
+                  }
+                }
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.account_circle_outlined),
+              title: Text('Cuenta'),
+              onTap: () {
+                // Aquí maneja la navegación para la opción "Cuenta"
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Cerrar Sesión'),
+              onTap: () {
+                cerrarSesion();
+              },
+            ),
+          ],
+        ),
       ),
       body: ListView.builder(
         itemCount: noticias.length,
@@ -271,5 +238,88 @@ class _NoticiasViewState extends State<NoticiasView> {
         },
       ),
     );
+  }
+
+  void listarNoticias() {
+    FacadeService facadeService = FacadeService();
+    facadeService.listar_noticas().then((value) {
+      setState(() {
+        noticias = value.datos; // Almacena las noticias en la lista
+        log(value.datos.toString());
+      });
+    });
+  }
+
+  void cerrarSesion() async {
+    Utiles util = Utiles();
+    util.removeAllItems();
+    Navigator.pushReplacementNamed(context, '/home');
+  }
+
+  void comentario(String externalId) {
+    FacadeService facadeService = FacadeService();
+    facadeService.obtener_noticia(externalId).then((value) {
+      if (value.code == 200) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetalleNoticiaView(
+              external_noticia: externalId,
+              noticia: value.datos,
+            ),
+          ),
+        );
+      } else {
+        final SnackBar msg = SnackBar(content: Text('Error ${value.code}'));
+        ScaffoldMessenger.of(context).showSnackBar(msg);
+      }
+    });
+  }
+
+  String _formatDate(String dateString) {
+    DateTime date = DateTime.parse(dateString);
+    return DateFormat('dd-MM-yyyy').format(date);
+  }
+
+  void ver_comentarios_mapa() {
+    facadeService.obtener_comentarios().then((value) {
+      if (value.code == 200) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ComentariosMapaView(
+              comentarios: value.datos,
+            ),
+          ),
+        );
+      } else {
+        final SnackBar msg = SnackBar(content: Text('Error ${value.code}'));
+        ScaffoldMessenger.of(context).showSnackBar(msg);
+      }
+    });
+  }
+
+  void ver_comentarios_noticia_mapa(String externalId) {
+    facadeService.obtener_comentarios_noticia(externalId).then((value) {
+      if (value.code == 200) {
+        if (value.datos.isNotEmpty) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ComentariosMapaView(
+                comentarios: value.datos,
+              ),
+            ),
+          );
+        } else {
+          final SnackBar msg = SnackBar(
+              content: Text('Aún no hay comentarios en esta noticia.'));
+          ScaffoldMessenger.of(context).showSnackBar(msg);
+        }
+      } else {
+        final SnackBar msg = SnackBar(content: Text('Error ${value.code}'));
+        ScaffoldMessenger.of(context).showSnackBar(msg);
+      }
+    });
   }
 }

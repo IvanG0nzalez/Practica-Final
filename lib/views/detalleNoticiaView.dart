@@ -2,12 +2,14 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:noticias/controls/Conexion.dart';
 import 'package:noticias/controls/servicio_back/FacadeService.dart';
 import 'package:noticias/controls/servicio_back/RespuestaGenerica.dart';
 import 'package:noticias/controls/utiles/Utiles.dart';
+import 'package:noticias/views/comentariosMapaView.dart';
 
 class DetalleNoticiaView extends StatefulWidget {
   final String external_noticia;
@@ -22,8 +24,8 @@ class DetalleNoticiaView extends StatefulWidget {
 }
 
 class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
-  Utiles _util = Utiles();
-  FacadeService _servicio = FacadeService();
+  Utiles util = Utiles();
+  FacadeService facadeService = FacadeService();
   late Future<String> external_user;
 
   final TextEditingController _textoController = TextEditingController();
@@ -31,24 +33,97 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
   List<dynamic> _comentarios = [];
   late Future<List<dynamic>> _comentariosPropios;
 
+  late Future<bool> isAdmin;
+
   @override
   void initState() {
     super.initState();
-    _comentariosPropios = _cargarComentariosPropios();
+    _comentariosPropios = _cargarComentariosPropiosIniciales();
     _cargarComentarios();
+    isAdmin = util.getValue('isAdmin').then((value) => value == 'true');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detalle Noticia'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: cerrarSesion,
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
           ),
-        ],
+        ),
+        title: const Text('Detalle Noticia'),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 227, 206, 251),
+              ),
+              child: Text(
+                'Aplicación de Noticias',
+                style: TextStyle(
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.article_outlined),
+              title: Text('Listado de Noticias'),
+              onTap: () {
+                Navigator.pushReplacementNamed(context, '/noticias');
+              },
+            ),
+            FutureBuilder<bool>(
+              future: isAdmin,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Container();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  if (snapshot.data == true) {
+                    return ListTile(
+                      leading: FaIcon(FontAwesomeIcons.mapMarkedAlt),
+                      title: Text(
+                        'Mapa general',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      onTap: () {
+                        ver_comentarios_mapa();
+                      },
+                    );
+                  } else {
+                    return Container();
+                  }
+                }
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.account_circle_outlined),
+              title: Text('Cuenta'),
+              onTap: () {
+                // Aquí maneja la navegación para la opción "Cuenta"
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Cerrar Sesión'),
+              onTap: () {
+                cerrarSesion();
+              },
+            ),
+          ],
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -128,8 +203,7 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
                   border: Border.all(color: Colors.grey),
                   borderRadius: BorderRadius.circular(4.0),
                 ),
-                constraints: const BoxConstraints(
-                    maxHeight: 200), // Define la altura máxima
+                constraints: const BoxConstraints(maxHeight: 200),
                 child: SingleChildScrollView(
                   child: Container(
                     padding: const EdgeInsets.all(16.0),
@@ -162,7 +236,6 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
                     future: _comentariosPropios,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        // Muestra un indicador de carga mientras esperamos el resultado del Future
                         return CircularProgressIndicator();
                       } else {
                         if (snapshot.hasError) {
@@ -175,7 +248,7 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
                           return comentarios.isEmpty
                               ? const Padding(
                                   padding: EdgeInsets.all(16.0),
-                                  child: Text('No hay comentarios'),
+                                  child: Text('Aún no ha hecho un comentario'),
                                 )
                               : ListView.builder(
                                   shrinkWrap: true,
@@ -246,7 +319,7 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
                           : [
                               const Padding(
                                 padding: EdgeInsets.all(16.0),
-                                child: Text('No hay comentarios'),
+                                child: Text('¡Sé el primero en comentar!'),
                               ),
                             ],
                     ),
@@ -267,9 +340,9 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
     );
   }
 
-  Future<List<dynamic>> _cargarComentariosPropios() async {
-    final respuesta = await _servicio.obtener_comentarios_noticia_usuario(
-        widget.external_noticia, await _util.getValue('external_user'));
+  Future<List<dynamic>> _cargarComentariosPropiosIniciales() async {
+    final respuesta = await facadeService.obtener_comentarios_noticia_usuario(
+        widget.external_noticia, await util.getValue('external_user'));
     if (respuesta.code == 200) {
       log(respuesta.datos.toString());
       return respuesta.datos;
@@ -278,9 +351,20 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
     }
   }
 
+  void _cargarComentariosPropios() async {
+    final respuesta = await facadeService.obtener_comentarios_noticia_usuario(
+        widget.external_noticia, await util.getValue('external_user'));
+    if (respuesta.code == 200) {
+      log(respuesta.datos.toString());
+      setState(() {
+        _comentariosPropios = Future.value(respuesta.datos);
+      });
+    } else {}
+  }
+
   void _cargarComentarios() async {
-    RespuestaGenerica respuesta =
-        await _servicio.obtener_10_comentarios_noticia(widget.external_noticia);
+    RespuestaGenerica respuesta = await facadeService
+        .obtener_10_comentarios_noticia(widget.external_noticia);
     if (respuesta.code == 200) {
       setState(() {
         _comentarios = respuesta.datos;
@@ -363,7 +447,7 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
                           foregroundColor:
                               Colors.black, //color del texto del botón
                         ),
-                        child: Text('Guardar'),
+                        child: const Text('Guardar'),
                       ),
                     ],
                   ),
@@ -401,7 +485,7 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
       };
 
       RespuestaGenerica respuesta =
-          await _servicio.guardar_comentario(comentario);
+          await facadeService.guardar_comentario(comentario);
 
       if (respuesta.code == 200) {
         const SnackBar msg =
@@ -409,6 +493,7 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
         ScaffoldMessenger.of(context).showSnackBar(msg);
         _limpiarTexto();
         _cargarComentarios();
+        _cargarComentariosPropios();
       }
     } else {
       showDialog(
@@ -433,13 +518,8 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
   }
 
   void _editarComentario(dynamic comentario) {
-    // Obtener el texto del comentario existente
     String textoExistente = comentario['texto'];
-
-    // Establecer el texto del comentario existente en el controlador de texto
     _textoController.text = textoExistente;
-
-    // Mostrar el cuadro de diálogo de edición de comentario
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -496,34 +576,25 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
                       const SizedBox(width: 10),
                       ElevatedButton(
                         onPressed: () async {
-                          // Obtener el texto editado del controlador de texto
                           String textoEditado = _textoController.text;
-
-                          // Crear el mapa de datos para enviar al servicio de edición de comentario
                           Map<String, dynamic> comentarioEditado = {
                             "texto": textoEditado,
-                            // Otros campos necesarios para editar el comentario, si los hay
                           };
 
-                          // Llamar al servicio para editar el comentario
                           RespuestaGenerica respuesta =
-                              await _servicio.editar_comentario(
+                              await facadeService.editar_comentario(
                             comentario['external_id'],
                             comentarioEditado,
                           );
 
-                          // Verificar la respuesta del servicio
                           if (respuesta.code == 200) {
-                            // Si la edición se realizó con éxito, mostrar un mensaje
                             const SnackBar msg = SnackBar(
                                 content:
                                     Text('Comentario editado exitosamente'));
                             ScaffoldMessenger.of(context).showSnackBar(msg);
-
-                            // Actualizar la lista de comentarios
                             _cargarComentarios();
+                            _cargarComentariosPropios();
                           } else {
-                            // Si hubo un error, mostrar un mensaje de error
                             showDialog(
                               context: context,
                               barrierDismissible: false,
@@ -543,8 +614,6 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
                               },
                             );
                           }
-
-                          // Cerrar el cuadro de diálogo de edición de comentario
                           Navigator.of(context).pop();
                         },
                         style: ElevatedButton.styleFrom(
@@ -562,5 +631,23 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
         );
       },
     );
+  }
+
+  void ver_comentarios_mapa() {
+    facadeService.obtener_comentarios().then((value) {
+      if (value.code == 200) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ComentariosMapaView(
+              comentarios: value.datos,
+            ),
+          ),
+        );
+      } else {
+        final SnackBar msg = SnackBar(content: Text('Error ${value.code}'));
+        ScaffoldMessenger.of(context).showSnackBar(msg);
+      }
+    });
   }
 }
