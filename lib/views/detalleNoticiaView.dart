@@ -12,11 +12,11 @@ import 'package:noticias/controls/utiles/Utiles.dart';
 import 'package:noticias/views/comentariosMapaView.dart';
 
 class DetalleNoticiaView extends StatefulWidget {
-  final String external_noticia;
+  final String externalNoticia;
   final Map<String, dynamic> noticia;
 
   const DetalleNoticiaView(
-      {Key? key, required this.external_noticia, required this.noticia})
+      {Key? key, required this.externalNoticia, required this.noticia})
       : super(key: key);
 
   @override
@@ -26,7 +26,7 @@ class DetalleNoticiaView extends StatefulWidget {
 class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
   Utiles util = Utiles();
   FacadeService facadeService = FacadeService();
-  late Future<String> external_user;
+  late Future<String> externalUser;
 
   final TextEditingController _textoController = TextEditingController();
 
@@ -74,8 +74,15 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.article_outlined),
-              title: Text('Listado de Noticias'),
+              leading: const Icon(Icons.account_circle_outlined),
+              title: const Text('Cuenta'),
+              onTap: () {
+                Navigator.pushReplacementNamed(context, '/cuenta');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.article_outlined),
+              title: const Text('Listado de Noticias'),
               onTap: () {
                 Navigator.pushReplacementNamed(context, '/noticias');
               },
@@ -90,8 +97,8 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
                 } else {
                   if (snapshot.data == true) {
                     return ListTile(
-                      leading: FaIcon(FontAwesomeIcons.mapMarkedAlt),
-                      title: Text(
+                      leading: const FaIcon(FontAwesomeIcons.mapMarkedAlt),
+                      title: const Text(
                         'Mapa general',
                         style: TextStyle(
                           fontSize: 16.0,
@@ -108,16 +115,38 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
                 }
               },
             ),
-            ListTile(
-              leading: Icon(Icons.account_circle_outlined),
-              title: Text('Cuenta'),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/cuenta');
+            FutureBuilder<bool>(
+              future: isAdmin,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Container();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  if (snapshot.data == true) {
+                    return ListTile(
+                      leading: const FaIcon(FontAwesomeIcons.users),
+                      title: const Text(
+                        'Administrar Usuarios',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.pushReplacementNamed(
+                            context, '/administrar_usuarios');
+                      },
+                    );
+                  } else {
+                    return Container();
+                  }
+                }
               },
             ),
             ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Cerrar Sesión'),
+              leading: const Icon(Icons.logout),
+              title: const Text('Cerrar Sesión'),
               onTap: () {
                 cerrarSesion();
               },
@@ -236,11 +265,11 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
                     future: _comentariosPropios,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return CircularProgressIndicator();
+                        return const CircularProgressIndicator();
                       } else {
                         if (snapshot.hasError) {
-                          return Padding(
-                            padding: const EdgeInsets.all(16.0),
+                          return const Padding(
+                            padding: EdgeInsets.all(16.0),
                             child: Text('Error al cargar comentarios'),
                           );
                         } else {
@@ -269,7 +298,7 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
                                           onPressed: () {
                                             _editarComentario(comentario);
                                           },
-                                          child: Text('Editar'),
+                                          child: const Text('Editar'),
                                         ),
                                       ),
                                     );
@@ -342,7 +371,7 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
 
   Future<List<dynamic>> _cargarComentariosPropiosIniciales() async {
     final respuesta = await facadeService.obtener_comentarios_noticia_usuario(
-        widget.external_noticia, await util.getValue('external_user'));
+        widget.externalNoticia, await util.getValue('external_user'));
     if (respuesta.code == 200) {
       log(respuesta.datos.toString());
       return respuesta.datos;
@@ -353,7 +382,7 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
 
   void _cargarComentariosPropios() async {
     final respuesta = await facadeService.obtener_comentarios_noticia_usuario(
-        widget.external_noticia, await util.getValue('external_user'));
+        widget.externalNoticia, await util.getValue('external_user'));
     if (respuesta.code == 200) {
       log(respuesta.datos.toString());
       setState(() {
@@ -364,7 +393,7 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
 
   void _cargarComentarios() async {
     RespuestaGenerica respuesta = await facadeService
-        .obtener_10_comentarios_noticia(widget.external_noticia);
+        .obtener_10_comentarios_noticia(widget.externalNoticia);
     if (respuesta.code == 200) {
       setState(() {
         _comentarios = respuesta.datos;
@@ -471,7 +500,7 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
     Utiles util = Utiles();
     String? externalUser = await util.getValue('external_user');
 
-    String externalId = widget.external_noticia;
+    String externalId = widget.externalNoticia;
 
     String texto = _textoController.text;
 

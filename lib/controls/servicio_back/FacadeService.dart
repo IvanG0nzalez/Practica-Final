@@ -6,7 +6,6 @@ import 'package:noticias/controls/servicio_back/modelo/InicioSesionSW.dart';
 import 'package:http/http.dart' as http;
 import 'package:noticias/controls/servicio_back/modelo/RegistroSW.dart';
 
-
 class FacadeService {
   Conexion c = Conexion();
   Future<InicioSesionSW> inicioSesion(Map<String, String> mapa) async {
@@ -21,10 +20,11 @@ class FacadeService {
       log(response.toString());
       if (response.statusCode != 200) {
         if (response.statusCode == 400) {
-          isws.code = 404;
-          isws.tag = 'Error';
-          isws.msg = 'Recurso No Encontrado';
-          isws.datos = {};
+          Map<dynamic, dynamic> mapa = jsonDecode(response.body);
+          isws.code = mapa['code'];
+          isws.tag = mapa['tag'];
+          isws.msg = mapa['msg'];
+          isws.datos = mapa['datos'];
           return isws;
         }
       } else {
@@ -81,10 +81,11 @@ class FacadeService {
   }
 
   Future<RespuestaGenerica> obtener_noticia(String externalId) async {
-    return await c.solicitudGet('noticias/get/${externalId}', false);
+    return await c.solicitudGet('noticias/get/$externalId', false);
   }
 
-  Future<RespuestaGenerica> guardar_comentario(Map<String, dynamic> comentario) async {
+  Future<RespuestaGenerica> guardar_comentario(
+      Map<String, dynamic> comentario) async {
     return await c.solicitudPost("comentarios/save", false, comentario);
   }
 
@@ -92,27 +93,52 @@ class FacadeService {
     return await c.solicitudGet("comentarios", false);
   }
 
-  Future<RespuestaGenerica> obtener_comentarios_noticia(String externalId) async {
-    return await c.solicitudGet('noticias/comentarios/get/${externalId}', false);
+  Future<RespuestaGenerica> obtener_comentarios_noticia(
+      String externalId) async {
+    return await c.solicitudGet(
+        'noticias/comentarios/get/$externalId', false);
   }
 
-  Future<RespuestaGenerica> obtener_10_comentarios_noticia(String externalId) async {
-    return await c.solicitudGet('noticias/comentarios/get10/${externalId}', false);
+  Future<RespuestaGenerica> obtener_10_comentarios_noticia(
+      String externalId) async {
+    return await c.solicitudGet(
+        'noticias/comentarios/get10/$externalId', false);
   }
 
-  Future<RespuestaGenerica> obtener_comentarios_noticia_usuario(String externalNoticia, String? externalPersona) async {
-    return await c.solicitudGet('noticias/comentarios/usuarios/get/${externalNoticia}/${externalPersona}', false);
+  Future<RespuestaGenerica> obtener_comentarios_noticia_usuario(
+      String externalNoticia, String? externalPersona) async {
+    return await c.solicitudGet(
+        'noticias/comentarios/usuarios/get/$externalNoticia/$externalPersona',
+        false);
   }
 
-  Future<RespuestaGenerica> editar_comentario(String externalComentario, Map<String, dynamic> comentario) async {
-    return await c.solicitudPatch('comentarios/edit/${externalComentario}/', false, comentario);
+  Future<RespuestaGenerica> obtener_comentarios_persona(
+      String externalUsuario) async {
+    return await c.solicitudGet(
+        'comentarios/personas/get/$externalUsuario', false);
+  }
+
+  Future<RespuestaGenerica> editar_comentario(
+      String externalComentario, Map<String, dynamic> comentario) async {
+    return await c.solicitudPatch(
+        'comentarios/edit/$externalComentario', false, comentario);
   }
 
   Future<RespuestaGenerica> obtener_persona(String externalId) async {
-    return await c.solicitudGet('admin/personas/get/${externalId}', false);
+    return await c.solicitudGet('admin/personas/get/$externalId', false);
   }
 
-  Future<RespuestaGenerica> editar_persona(String externalPersona, Map<String, dynamic> mapa) async {
-    return await c.solicitudPatch('admin/personas/edit/${externalPersona}/', false, mapa);
+  Future<RespuestaGenerica> editar_persona(
+      String externalPersona, Map<String, dynamic> mapa) async {
+    return await c.solicitudPatch(
+        'admin/personas/edit/$externalPersona', false, mapa);
+  }
+
+  Future<RespuestaGenerica> listar_personas() async {
+    return await c.solicitudGet("admin/personas", false);
+  }
+
+  Future<RespuestaGenerica> dar_de_baja(String externalUsuario) async {
+    return await c.solicitudGet("admin/cuentas/baja/$externalUsuario", false);
   }
 }

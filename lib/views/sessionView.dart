@@ -43,7 +43,7 @@ class _SessionViewState extends State<SessionView> {
             );
             
           } else {
-            final SnackBar msg = SnackBar(content: Text('Error ${value.code}'));
+            final SnackBar msg = SnackBar(content: Text('¡Error! ${value.tag}'));
             ScaffoldMessenger.of(context).showSnackBar(msg);
           }
           log(value.datos.toString());

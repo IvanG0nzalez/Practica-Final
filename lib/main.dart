@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:noticias/views/administrarUsuariosView.dart';
+import 'package:noticias/views/comentariosUsuarioView.dart';
 import 'package:noticias/views/detalleCuentaView.dart';
 import 'package:noticias/views/detalleNoticiaView.dart';
 import 'package:noticias/views/exception/Page404.dart';
@@ -48,18 +50,27 @@ class MyApp extends StatelessWidget {
           final args = ModalRoute.of(context)!.settings.arguments
               as Map<String, dynamic>;
           return DetalleNoticiaView(
-            external_noticia: args['externalId'],
+            externalNoticia: args['externalId'],
             noticia: args['noticia'],
           );
         },
         '/cuenta': (context) => const DetalleCuentaView(),
+        '/administrar_usuarios': (context) => const AdministrarUsuariosView(),
+        '/comentarios_usuario': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>;
+          return ComentariosUsuarioView(
+            externalUsuario: args['externalUsuario'],
+            nombreUsuario: args['nombreUsuario'],
+          );
+        },
       },
       onGenerateRoute: (setting) {
         if (setting.name == '/noticias/detalle') {
           final args = setting.arguments as Map<String, dynamic>;
           return MaterialPageRoute(
             builder: (context) => DetalleNoticiaView(
-              external_noticia: args['externalId'],
+              externalNoticia: args['externalId'],
               noticia: args['noticia'],
             ),
           );

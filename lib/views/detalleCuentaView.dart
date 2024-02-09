@@ -41,9 +41,7 @@ class _DetalleCuentaViewState extends State<DetalleCuentaView> {
         direccion = response.datos['direccion'] ?? '';
         celular = response.datos['celular'] ?? '';
       });
-    } else {
-      // Manejar error si la solicitud no es exitosa
-    }
+    } else {}
   }
 
   @override
@@ -58,7 +56,7 @@ class _DetalleCuentaViewState extends State<DetalleCuentaView> {
             },
           ),
         ),
-        title: Text('Detalle de Cuenta'),
+        title: const Text('Detalle de Cuenta'),
       ),
       drawer: Drawer(
         child: ListView(
@@ -77,8 +75,15 @@ class _DetalleCuentaViewState extends State<DetalleCuentaView> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.article_outlined),
-              title: Text('Listado de Noticias'),
+              leading: const Icon(Icons.account_circle_outlined),
+              title: const Text('Cuenta'),
+              onTap: () {
+                Navigator.pushReplacementNamed(context, '/cuenta');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.article_outlined),
+              title: const Text('Listado de Noticias'),
               onTap: () {
                 Navigator.pushReplacementNamed(context, '/noticias');
               },
@@ -93,8 +98,8 @@ class _DetalleCuentaViewState extends State<DetalleCuentaView> {
                 } else {
                   if (snapshot.data == true) {
                     return ListTile(
-                      leading: FaIcon(FontAwesomeIcons.mapMarkedAlt),
-                      title: Text(
+                      leading: const FaIcon(FontAwesomeIcons.mapMarkedAlt),
+                      title: const Text(
                         'Mapa general',
                         style: TextStyle(
                           fontSize: 16.0,
@@ -111,16 +116,38 @@ class _DetalleCuentaViewState extends State<DetalleCuentaView> {
                 }
               },
             ),
-            ListTile(
-              leading: Icon(Icons.account_circle_outlined),
-              title: Text('Cuenta'),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/cuenta');
+            FutureBuilder<bool>(
+              future: isAdmin,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Container();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  if (snapshot.data == true) {
+                    return ListTile(
+                      leading: const FaIcon(FontAwesomeIcons.users),
+                      title: const Text(
+                        'Administrar Usuarios',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.pushReplacementNamed(
+                            context, '/administrar_usuarios');
+                      },
+                    );
+                  } else {
+                    return Container();
+                  }
+                }
               },
             ),
             ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Cerrar Sesión'),
+              leading: const Icon(Icons.logout),
+              title: const Text('Cerrar Sesión'),
               onTap: () {
                 cerrarSesion();
               },
@@ -129,7 +156,7 @@ class _DetalleCuentaViewState extends State<DetalleCuentaView> {
         ),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -145,60 +172,38 @@ class _DetalleCuentaViewState extends State<DetalleCuentaView> {
   }
 
   Widget _construirFields(String etiqueta, String valor) {
-    if (etiqueta == 'Correo Electrónico') {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            etiqueta,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          etiqueta,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
           ),
-          SizedBox(height: 8),
-          Text(
-            valor.isNotEmpty ? valor : 'Ingresar información',
-            style: TextStyle(fontSize: 16),
-          ),
-          Divider(),
-          SizedBox(height: 12),
-        ],
-      );
-    } else {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            etiqueta,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  valor.isNotEmpty ? valor : 'Ingresar información',
-                  style: TextStyle(fontSize: 16),
-                ),
+        ),
+        const SizedBox(height: 8),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                valor.isNotEmpty ? valor : 'Ingresar información',
+                style: const TextStyle(fontSize: 16),
               ),
-              IconButton(
-                onPressed: () {
-                  _mostrarEditarCampo(etiqueta, valor);
-                },
-                icon: Icon(Icons.edit),
-              ),
-            ],
-          ),
-          Divider(),
-          SizedBox(height: 12),
-        ],
-      );
-    }
+            ),
+            IconButton(
+              onPressed: () {
+                _mostrarEditarCampo(etiqueta, valor);
+              },
+              icon: const Icon(Icons.edit),
+            ),
+          ],
+        ),
+        const Divider(),
+        const SizedBox(height: 12),
+      ],
+    );
   }
 
   void _mostrarEditarCampo(String etiqueta, String valor) {
@@ -221,19 +226,19 @@ class _DetalleCuentaViewState extends State<DetalleCuentaView> {
                 children: [
                   Text(
                     'Editar $etiqueta',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   TextField(
                     controller: controller,
                     maxLines: null,
                     keyboardType: TextInputType.multiline,
-                    style: TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
+                    style: const TextStyle(color: Colors.white),
+                    decoration: const InputDecoration(
                       hintText: 'Escriba su información aquí',
                       hintStyle: TextStyle(color: Colors.white),
                       border: OutlineInputBorder(
@@ -241,7 +246,7 @@ class _DetalleCuentaViewState extends State<DetalleCuentaView> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -249,14 +254,14 @@ class _DetalleCuentaViewState extends State<DetalleCuentaView> {
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
-                        child: Text(
+                        child: const Text(
                           'Cancelar',
                           style: TextStyle(
                             color: Colors.white,
                           ),
                         ),
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       ElevatedButton(
                         onPressed: () async {
                           String newValue = controller.text;
@@ -298,7 +303,7 @@ class _DetalleCuentaViewState extends State<DetalleCuentaView> {
                           backgroundColor: Colors.white,
                           foregroundColor: Colors.black,
                         ),
-                        child: Text('Guardar'),
+                        child: const Text('Guardar'),
                       ),
                     ],
                   ),

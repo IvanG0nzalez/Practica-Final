@@ -64,8 +64,15 @@ class _ComentariosMapaViewState extends State<ComentariosMapaView>
               ),
             ),
             ListTile(
-              leading: Icon(Icons.article_outlined),
-              title: Text('Listado de Noticias'),
+              leading: const Icon(Icons.account_circle_outlined),
+              title: const Text('Cuenta'),
+              onTap: () {
+                Navigator.pushReplacementNamed(context, '/cuenta');
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.article_outlined),
+              title: const Text('Listado de Noticias'),
               onTap: () {
                 Navigator.pushReplacementNamed(context, '/noticias');
               },
@@ -80,8 +87,8 @@ class _ComentariosMapaViewState extends State<ComentariosMapaView>
                 } else {
                   if (snapshot.data == true) {
                     return ListTile(
-                      leading: FaIcon(FontAwesomeIcons.mapMarkedAlt),
-                      title: Text(
+                      leading: const FaIcon(FontAwesomeIcons.mapMarkedAlt),
+                      title: const Text(
                         'Mapa general',
                         style: TextStyle(
                           fontSize: 16.0,
@@ -98,16 +105,38 @@ class _ComentariosMapaViewState extends State<ComentariosMapaView>
                 }
               },
             ),
-            ListTile(
-              leading: Icon(Icons.account_circle_outlined),
-              title: Text('Cuenta'),
-              onTap: () {
-                Navigator.pushReplacementNamed(context, '/cuenta');
+            FutureBuilder<bool>(
+              future: isAdmin,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Container();
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  if (snapshot.data == true) {
+                    return ListTile(
+                      leading: const FaIcon(FontAwesomeIcons.users),
+                      title: const Text(
+                        'Administrar Usuarios',
+                        style: TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.pushReplacementNamed(
+                            context, '/administrar_usuarios');
+                      },
+                    );
+                  } else {
+                    return Container();
+                  }
+                }
               },
             ),
             ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Cerrar Sesión'),
+              leading: const Icon(Icons.logout),
+              title: const Text('Cerrar Sesión'),
               onTap: () {
                 cerrarSesion();
               },
