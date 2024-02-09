@@ -112,7 +112,7 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
               leading: Icon(Icons.account_circle_outlined),
               title: Text('Cuenta'),
               onTap: () {
-                // Aquí maneja la navegación para la opción "Cuenta"
+                Navigator.pushReplacementNamed(context, '/cuenta');
               },
             ),
             ListTile(

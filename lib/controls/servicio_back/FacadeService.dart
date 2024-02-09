@@ -107,4 +107,12 @@ class FacadeService {
   Future<RespuestaGenerica> editar_comentario(String externalComentario, Map<String, dynamic> comentario) async {
     return await c.solicitudPatch('comentarios/edit/${externalComentario}/', false, comentario);
   }
+
+  Future<RespuestaGenerica> obtener_persona(String externalId) async {
+    return await c.solicitudGet('admin/personas/get/${externalId}', false);
+  }
+
+  Future<RespuestaGenerica> editar_persona(String externalPersona, Map<String, dynamic> mapa) async {
+    return await c.solicitudPatch('admin/personas/edit/${externalPersona}/', false, mapa);
+  }
 }
