@@ -166,28 +166,32 @@ class _DetalleNoticiaViewState extends State<DetalleNoticiaView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    widget.noticia['titulo'],
-                    style: const TextStyle(
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.bold,
-                    ),
+              Center(
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: widget.noticia['titulo'],
+                        style: const TextStyle(
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      TextSpan(
+                        text: ' (Noticia ${widget.noticia['tipo']})',
+                        style: const TextStyle(
+                          fontSize: 16.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(
-                    width: 2,
-                  ),
-                  Text(
-                    '(Noticia ${widget.noticia['tipo']})',
-                    style: const TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ],
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               const SizedBox(height: 16.0),
               Row(
