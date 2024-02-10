@@ -19,7 +19,7 @@ class _RegisterViewState extends State<RegisterView> {
     final TextEditingController apellidosC = TextEditingController();
     final TextEditingController correoC = TextEditingController();
     final TextEditingController claveC = TextEditingController();
-    
+
     void _iniciar() {
       setState(() {
         //Conexion c = Conexion();
@@ -66,7 +66,9 @@ class _RegisterViewState extends State<RegisterView> {
             log(value.datos.toString());
           });
         } else {
-          log('ta mal');
+          final SnackBar msg =
+              SnackBar(content: Text('Debe llenar todos los campos.'));
+          ScaffoldMessenger.of(context).showSnackBar(msg);
         }
       });
     }
@@ -74,114 +76,129 @@ class _RegisterViewState extends State<RegisterView> {
     return Form(
       key: _formKey,
       child: Scaffold(
-        body: ListView(
-          children: <Widget>[
-            Container(
-              alignment: Alignment.center,
-              padding: const EdgeInsets.all(10),
-              child: const Text("Noticias",
-                  style: TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 30)),
-            ),
-            Container(
-              alignment: Alignment.center,
-              padding: const EdgeInsets.all(10),
-              child: const Text("Registro de usuarios",
-                  style: TextStyle(
-                      color: Colors.blueGrey,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 30)),
-            ),
-            Container(
-              padding: const EdgeInsets.all(10),
-              child: TextFormField(
-                controller: nombresC,
-                decoration: const InputDecoration(
-                    labelText: 'Nombres', suffixIcon: Icon(Icons.account_tree)),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return "Debe ingresar sus nombres";
-                  }
-                  //if(!isEmail(value)) {
-                  //  return "Debe ingresar un correo válido";
-                  //}
-                },
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(10),
-              child: TextFormField(
-                controller: apellidosC,
-                decoration: const InputDecoration(
-                    labelText: 'Apellidos',
-                    suffixIcon: Icon(Icons.account_tree)),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return "Debe ingresar sus apellidos";
-                  }
-                  //if(!isEmail(value)) {
-                  //  return "Debe ingresar un correo válido";
-                  //}
-                },
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(10),
-              child: TextFormField(
-                controller: correoC,
-                decoration: const InputDecoration(
-                    labelText: 'Correo electrónico',
-                    suffixIcon: Icon(Icons.account_tree)),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return "Debe ingresar su correo";
-                  }
-                  if (!isEmail(value)) {
-                    return "Debe ingresar un correo válido";
-                  }
-                },
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(10),
-              child: TextFormField(
-                obscureText: true,
-                controller: claveC,
-                decoration: const InputDecoration(
-                    labelText: 'Clave', suffixIcon: Icon(Icons.account_tree)),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return "Debe ingresar su clave";
-                  }
-                  //if(!isEmail(value)) {
-                  //  return "Debe ingresar un correo válido";
-                  //}
-                },
-              ),
-            ),
-            Container(
-              height: 50,
-              padding: const EdgeInsets.fromLTRB(10, 0, 10,
-                  0), //Función para padding de todos lados Left, Top, Right, Bottom
-              child: ElevatedButton(
-                  child: const Text("Registrar"), onPressed: _iniciar),
-            ),
-            Row(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 30.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                const Text('Ya tienes una cuenta?'),
-                TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/home');
+                Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.all(10),
+                  child: const Text("Noticias",
+                      style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 30)),
+                ),
+                Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.all(10),
+                  child: const Text("Registro de usuarios",
+                      style: TextStyle(
+                          color: Colors.blueGrey,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 30)),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  child: TextFormField(
+                    controller: nombresC,
+                    decoration: const InputDecoration(
+                        labelText: 'Nombres',
+                        suffixIcon: Icon(Icons.account_tree)),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "Debe ingresar sus nombres";
+                      } else {
+                        return null;
+                      }
+                      //if(!isEmail(value)) {
+                      //  return "Debe ingresar un correo válido";
+                      //}
                     },
-                    child: const Text(
-                      'Iniciar sesión',
-                      style: TextStyle(fontSize: 20),
-                    ))
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  child: TextFormField(
+                    controller: apellidosC,
+                    decoration: const InputDecoration(
+                        labelText: 'Apellidos',
+                        suffixIcon: Icon(Icons.account_tree)),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "Debe ingresar sus apellidos";
+                      } else {
+                        return null;
+                      }
+                      //if(!isEmail(value)) {
+                      //  return "Debe ingresar un correo válido";
+                      //}
+                    },
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  child: TextFormField(
+                    controller: correoC,
+                    decoration: const InputDecoration(
+                        labelText: 'Correo electrónico',
+                        suffixIcon: Icon(Icons.account_tree)),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "Debe ingresar su correo";
+                      }
+                      if (!isEmail(value)) {
+                        return "Debe ingresar un correo válido";
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  child: TextFormField(
+                    obscureText: true,
+                    controller: claveC,
+                    decoration: const InputDecoration(
+                        labelText: 'Clave',
+                        suffixIcon: Icon(Icons.account_tree)),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "Debe ingresar su clave";
+                      } else {
+                        return null;
+                      }
+                      //if(!isEmail(value)) {
+                      //  return "Debe ingresar un correo válido";
+                      //}
+                    },
+                  ),
+                ),
+                Container(
+                  height: 50,
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                  child: ElevatedButton(
+                      onPressed: _iniciar, child: const Text("Registrar")),
+                ),
+                Row(
+                  children: <Widget>[
+                    const Text('Ya tienes una cuenta?'),
+                    TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/home');
+                        },
+                        child: const Text(
+                          'Iniciar sesión',
+                          style: TextStyle(fontSize: 20),
+                        ))
+                  ],
+                )
               ],
-            )
-          ],
+            ),
+          ),
         ),
       ),
     );
